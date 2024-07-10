@@ -10,6 +10,17 @@ This repository exists for an example for a 3-tier architecture training.
 - Containerd 1.7.18
 ```
 
+### Command
+```bash
+cd {your work directory}
+git clone https://github.com/minsubak/3-tier-architecture-example.git
+docker build -t u22-systemd .
+docker compose up -d
+
+# If you connect to a container
+docker exec -it {container name or id} bash
+```
+
 ### Dockerfile.template
 Need to typing your domain, port and db info.
 ```Dockerfile
