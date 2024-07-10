@@ -2,6 +2,10 @@
 
 This repository exists for an example for a 3-tier architecture training.
 
+### Concept
+![3-tier-architecture drawio](https://github.com/minsubak/3-tier-architecture-example/assets/54968879/40327a16-5c51-44c9-9ead-bdde8de3644c)
+
+
 ### Test Environment
 ```
 - Ubuntu 22.04.04 LTS (jammy)
