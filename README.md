@@ -1,6 +1,18 @@
-# ubuntu:22.04 LTS with systemd
-# docker build -t u22-systemd .
+# 3-Tier Architecture Example
 
+This repository exists for an example for a 3-tier architecture practice
+
+### Test Environment
+```
+- Ubuntu 22.04.04 LTS (jammy)
+- Docker 27.0.3 build 7d4bcd8
+- Docker Compose v2.28.1
+- Containerd 1.7.18
+```
+
+### Dockerfile.template
+need to typing your domain, port and db info
+```Dockerfile
 FROM ubuntu:22.04
 
 # arg
@@ -9,7 +21,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 # env
 ENV TZ=Asia/Seoul \
     SERVER_DOMAIN=[your_domain] \
-    WEB_ADDR1=apache2 \ 
+    WEB_ADDR1=apache1 \ 
     WEB_ADDR2=apache2 \
     WEB_N_LB_PORT=[your_port|recommand_80] \
     INLB_ADDR=nginx2 \
@@ -41,3 +53,10 @@ EXPOSE 00000
 
 # run systemctl
 CMD ["/sbin/init"]
+```
+
+### Else
+When testing in a localhost or arbitrarily configured domains, modifications to the hosts file are required.
+```
+C:\Windows\System32\drivers\etc\hosts
+```
