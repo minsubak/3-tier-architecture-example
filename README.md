@@ -1,6 +1,6 @@
 # 3-Tier Architecture Example
 
-This repository exists for an example for a 3-tier architecture practice
+This repository exists for an example for a 3-tier architecture training.
 
 ### Test Environment
 ```
@@ -11,7 +11,7 @@ This repository exists for an example for a 3-tier architecture practice
 ```
 
 ### Dockerfile.template
-need to typing your domain, port and db info
+Need to typing your domain, port and db info.
 ```Dockerfile
 FROM ubuntu:22.04
 
@@ -60,3 +60,5 @@ When testing in a localhost or arbitrarily configured domains, modifications to 
 ```
 C:\Windows\System32\drivers\etc\hosts
 ```
+
+These files are examples for training; under normal circumstances, additional security settings may be required, and I am not responsible for any problems caused by arbitrary modifications to those files.
