@@ -1,0 +1,27 @@
+FROM u22-systemd
+
+# install nginx package
+RUN apt install nginx -y
+
+# copy config file
+COPY ./nginx/Nginx-default /etc/nginx/sites-available/default
+COPY ./nginx/Nginx-ext.conf /etc/nginx/conf.d/${SERVER_DOMAIN}.conf.template
+
+# edit config file
+RUN mkdir /etc/nginx/${SERVER_DOMAIN}
+RUN envsubst '${SERVER_DOMAIN} ${WEB_ADDR1} ${WEB_ADDR2}' \
+    < /etc/nginx/conf.d/${SERVER_DOMAIN}.conf.template > \
+    /etc/nginx/conf.d/${SERVER_DOMAIN}.conf
+
+# servcie daemon auto start
+RUN systemctl enable nginx
+
+# ssl key part
+#RUN envsubst '${SERVER_DOMAIN} ${WEB_ADDR1} ${WEB_N_LB_PORT} ${WEB_ADDR2}' \
+#    < /etc/nginx/conf.d/${SERVER_DOMAIN}.conf.template > \
+#   /etc/nginx/conf.d/${SERVER_DOMAIN}.conf
+# 
+# copy pem key to domain directory for ssl
+#COPY fullchain.pem /etc/nginx/${DOMAIN}/fullchain.pem
+#COPY privkey.pem /etc/nginx/${DOMAIN}/privkey.pem
+#

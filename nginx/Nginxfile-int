@@ -1,0 +1,16 @@
+FROM u22-systemd
+
+# install nginx package
+RUN apt install nginx -y
+
+# copy config file
+COPY ./nginx/Nginx-default /etc/nginx/sites-available/default
+COPY ./nginx/Nginx-int.conf /etc/nginx/conf.d/${SERVER_DOMAIN}.conf.template
+
+# edit config file
+RUN envsubst '${SERVER_DOMAIN} ${WAS_ADDR1} ${WAS_ADDR2}' \
+    < /etc/nginx/conf.d/${SERVER_DOMAIN}.conf.template > \
+    /etc/nginx/conf.d/${SERVER_DOMAIN}.conf
+
+# servcie daemon auto start
+RUN systemctl enable nginx

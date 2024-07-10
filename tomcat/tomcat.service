@@ -1,0 +1,17 @@
+[Unit]
+Description=tomcat 9
+After=network.target syslog.target
+
+[Service]
+Type=forking
+Environment="/usr/local/src/tomcat"
+User=tomcat
+Group=tomcat
+ExecStart= /usr/local/src/tomcat/bin/startup.sh
+ExecStop= /usr/local/src/tomcat/bin/shutdown.sh
+RestartSec=10
+Restart=always
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target

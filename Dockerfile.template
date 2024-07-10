@@ -1,0 +1,43 @@
+# ubuntu:22.04 LTS with systemd
+# docker build -t u22-systemd .
+
+FROM ubuntu:22.04
+
+# arg
+ARG DEBIAN_FRONTEND=noninteractive
+
+# env
+ENV TZ=Asia/Seoul \
+    SERVER_DOMAIN=[your_domain] \
+    WEB_ADDR1=[web1_server_address] \ 
+    WEB_ADDR2=[web2_server_address] \
+    WEB_N_LB_PORT=[your_port|recommand_80] \
+    INLB_ADDR=[internal_loadvbalance_address] \
+    WAS_ADDR1=[was1_server_address] \
+    WAS_ADDR2=[was2_server_address] \
+    DB_ADDR=[db_server_address] \
+    DB_USERNAME=[db_username] \
+    DB_PASSWORD=[db_password] 
+
+# install systemctl and etc package
+RUN apt update \
+    && apt install -qq -y init systemd \
+    && apt install -qq -y build-essential \
+    && apt install -qq -y tzdata locales gettext\
+    && apt install -qq -y openssh-server \
+    && apt install -qq -y vim curl net-tools\
+    && apt-get clean autoclean \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/{apt, dpkg, cache, log}
+
+# ect work
+RUN systemctl enable ssh
+RUN echo 'your_name:your_password' | chpasswd
+RUN locale-gen [your_language_pack]
+ENV LC_ALL=[your_language_pack]
+WORKDIR /root
+
+EXPOSE 00000
+
+# run systemctl
+CMD ["/sbin/init"]

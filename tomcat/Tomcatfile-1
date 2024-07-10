@@ -1,0 +1,52 @@
+FROM u22-systemd
+
+# arg
+ARG TOMCAT_PATH=/usr/local/src/tomcat
+ARG TOMCAT_PACKAGE_NAME=apache-tomcat-9.0.90
+ARG CONNECTOR_PACKAGE_NAME=mysql-connector-j-8.4.0
+
+# copy package and config file
+COPY ./tomcat/${TOMCAT_PACKAGE_NAME}.tar.gz /usr/local/src/${TOMCAT_PACKAGE_NAME}.tar.gz
+COPY ./tomcat/tomcat.service /etc/systemd/system/tomcat.service
+COPY ./tomcat/mysql-connector-j_8.4.0-1ubuntu22.04_all.deb /tmp/${CONNECTOR_PACKAGE_NAME}.deb
+
+# install jdk package
+RUN apt install openjdk-8-jdk -y
+WORKDIR /usr/local/src
+
+# tomcat setup sequence
+RUN tar xvzf ${TOMCAT_PACKAGE_NAME}.tar.gz \
+    && mv ${TOMCAT_PACKAGE_NAME} tomcat
+
+# mysql connector setup sequence
+WORKDIR /tmp
+RUN dpkg -i ${CONNECTOR_PACKAGE_NAME}.deb \
+    && cp /usr/share/java/${CONNECTOR_PACKAGE_NAME}.jar ${TOMCAT_PATH}/lib \
+    && mkdir -p ${TOMCAT_PATH}/webapps/sample/WEB-INF
+
+# change tomcat control admin
+RUN useradd -M tomcat \
+    && chown tomcat:tomcat -R ${TOMCAT_PATH}/
+
+# copy etc config file
+COPY ./tomcat/context.xml ${TOMCAT_PATH}/conf/context.xml.template
+COPY ./tomcat/server1.xml ${TOMCAT_PATH}/conf/server.xml.template
+COPY ./tomcat/web.xml ${TOMCAT_PATH}/webapps/sample/WEB-INF/web.xml
+COPY ./tomcat/index.jsp ${TOMCAT_PATH}/webapps/sample/index.jsp
+COPY ./tomcat/mysql_data.jsp ${TOMCAT_PATH}/webapps/sample/mysql_data.jsp.template
+
+# edit config file
+RUN envsubst '${DB_ADDR} ${DB_USERNAME} ${DB_PASSWORD}' \
+    < ${TOMCAT_PATH}/conf/context.xml.template > \
+    ${TOMCAT_PATH}/conf/context.xml
+
+RUN envsubst '${WAS_ADDR1} ${WAS_ADDR2}' \
+    < ${TOMCAT_PATH}/conf/server.xml.template > \
+    ${TOMCAT_PATH}/conf/server.xml
+
+RUN envsubst '${DB_ADDR} ${DB_USERNAME} ${DB_PASSWORD}' \
+    < ${TOMCAT_PATH}/webapps/sample/mysql_data.jsp.template > \
+    ${TOMCAT_PATH}/webapps/sample/mysql_data.jsp
+
+# tomcat service daemon auto start
+RUN systemctl enable tomcat

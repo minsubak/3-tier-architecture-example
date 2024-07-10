@@ -1,0 +1,9 @@
+[Unit]
+Description=run init.sql
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash ${INITSQL_PATH}/init_script.sh
+
+[Install]
+WantedBy=multi-user.target

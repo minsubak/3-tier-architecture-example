@@ -1,0 +1,18 @@
+FROM u22-systemd
+
+# install apache2
+RUN apt install apache2 -y
+
+# copy config file
+COPY ./apache/Apache.conf /etc/apache2/sites-available/${SERVER_DOMAIN}.conf.template
+
+RUN envsubst '${SERVER_DOMAIN} ${INLB_ADDR}' \
+    < /etc/apache2/sites-available/${SERVER_DOMAIN}.conf.template > \
+    /etc/apache2/sites-available/${SERVER_DOMAIN}.conf
+
+# apache setup
+RUN a2ensite ${SERVER_DOMAIN}.conf \ 
+    && a2enmod proxy_http
+
+# service daemon auto start
+RUN systemctl enable apache2

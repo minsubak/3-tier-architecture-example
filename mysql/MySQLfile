@@ -1,0 +1,30 @@
+FROM u22-systemd
+
+# arg
+ARG INITSQL_PATH=/usr/local/src/initsql
+
+# intstall mysql package
+RUN apt install mysql-server -y \
+    && mkdir /usr/local/src/initsql
+
+# copy config file
+COPY ./mysql/my.cnf /etc/mysql/my.cnf
+COPY ./mysql/init.sql ${INITSQL_PATH}/init.sql.template
+COPY ./mysql/init_script.sh ${INITSQL_PATH}/init_script.sh.template
+COPY ./mysql/initsql.service /etc/systemd/system/initsql.service.template
+
+# edit config file
+RUN envsubst '${DB_USERNAME} ${DB_PASSWORD}' \
+    < ${INITSQL_PATH}/init.sql.template > ${INITSQL_PATH}/init.sql
+
+RUN envsubst '${INITSQL_PATH}' \
+    < /etc/systemd/system/initsql.service.template > \
+    /etc/systemd/system/initsql.service
+
+RUN envsubst '${INITSQL_PATH}' \
+    < ${INITSQL_PATH}/init_script.sh.template > \
+    ${INITSQL_PATH}/init_script.sh
+
+# mysql and initsql service daemon auto start
+RUN systemctl enable mysql \
+    && systemctl enable initsql

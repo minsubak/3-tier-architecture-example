@@ -1,0 +1,76 @@
+# this file is created for redundancy configuraion purposes
+services:
+    apache1: &was
+        build:
+            context: .
+            dockerfile: ./apache/Apachefile
+        container_name: apache1
+        hostname: apache1 
+        privileged: true 
+        stdin_open: true             
+        restart: always
+        ports:
+            - "2001:22"          
+             
+    apache2:
+        <<: *was
+        build:
+            context: .
+            dockerfile: ./apache/Apachefile
+        container_name: apache2
+        hostname: apache2        
+        ports: 
+            - "2002:22"
+    
+    tomcat1:
+        <<: *was
+        build:
+            context: .
+            dockerfile: ./tomcat/Tomcatfile-1
+        container_name: tomcat1
+        hostname: tomcat1        
+        ports: 
+            - "3001:22"
+              
+    tomcat2:
+        <<: *was
+        build:
+            context: .
+            dockerfile: ./tomcat/Tomcatfile-2
+        container_name: tomcat2 
+        hostname: tomcat2       
+        ports: 
+            - "3002:22"
+
+    nginx1:
+        <<: *was
+        build:
+            context: .
+            dockerfile: ./nginx/Nginxfile-ext
+        container_name: nginx1 
+        hostname: nginx1      
+        ports: 
+            - "5001:22"
+            - "443:443"
+            - "80:80"
+
+    nginx2:
+        <<: *was
+        build:
+            context: .
+            dockerfile: ./nginx/Nginxfile-int
+        container_name: nginx2
+        hostname: nginx2        
+        ports: 
+            - "5002:22"
+
+    mysql1:
+        <<: *was
+        build:
+            context: .
+            dockerfile: ./mysql/MySQLfile
+        container_name: mysql1 
+        hostname: mysql1       
+        ports: 
+            - "6001:22"
+            - "33306:3306"

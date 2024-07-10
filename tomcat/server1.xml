@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Server port="8005" shutdown="SHUTDOWN">
+    <Listener className="org.apache.catalina.startup.VersionLoggerListener"/>
+    <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on"/>
+    <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener"/>
+    <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener"/>
+    <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener"/>
+    <GlobalNamingResources>
+        <Resource 
+            name="UserDatabase" auth="Container"
+            type="org.apache.catalina.UserDatabase"
+            description="User database that can be updated and saved"
+            factory="org.apache.catalina.users.MemoryUserDatabaseFactory"
+            pathname="conf/tomcat-users.xml"
+        />
+    </GlobalNamingResources>
+    <Service name="Catalina">
+        <Connector 
+            port="8080" protocol="HTTP/1.1"
+            connectionTimeout="20000"
+            redirectPort="8443"
+            maxParameterCount="1000"
+        />
+        <Engine name="Catalina" defaultHost="localhost">
+            <Cluster className="org.apache.catalina.ha.tcp.SimpleTcpCluster" channelSendOptions="8" channelStartOptions="3">
+                <Manager className="org.apache.catalina.ha.session.DeltaManager" expireSessionsOnShutdown="false" notifyListenersOnReplication="true"/>
+                <Channel className="org.apache.catalina.tribes.group.GroupChannel">
+                    <Sender className="org.apache.catalina.tribes.transport.ReplicationTransmitter">
+                        <Transport className="org.apache.catalina.tribes.transport.nio.PooledParallelSender"/>
+                    </Sender>
+                    <Receiver 
+                        className="org.apache.catalina.tribes.transport.nio.NioReceiver"
+                        address="${WAS_ADDR1}"
+                        port="4055"
+                        autoBind="0"
+                        selectorTimeout="5000"
+                        maxThreads="6"
+                    />
+                    <Interceptor className="org.apache.catalina.tribes.group.interceptors.TcpPingInterceptor" staticOnly="true"/>
+                    <Interceptor className="org.apache.catalina.tribes.group.interceptors.TcpFailureDetector"/>
+                    <Interceptor className="org.apache.catalina.tribes.group.interceptors.StaticMembershipInterceptor">
+                        <Member
+                        className="org.apache.catalina.tribes.membership.StaticMember"
+                        port="4055"
+                        host="${WAS_ADDR2}"
+                        uniqueId="{0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2}"
+                        />
+                    </Interceptor>
+                    <Interceptor className="org.apache.catalina.tribes.group.interceptors.MessageDispatchInterceptor"/>
+                </Channel>
+                <Valve className="org.apache.catalina.ha.tcp.ReplicationValve" filter=".*\.gif;.*\.js;.*\.jpg;.*\.png;.*\.htm;.*\.html;.*\.css;.*\.txt;"/>
+                <Valve className="org.apache.catalina.ha.session.JvmRouteBinderValve"/>
+                <ClusterListener className="org.apache.catalina.ha.session.ClusterSessionListener"/>
+            </Cluster>
+            <Realm className="org.apache.catalina.realm.LockOutRealm">
+                <Realm 
+                    className="org.apache.catalina.realm.UserDatabaseRealm"
+                    resourceName="UserDatabase"
+                />
+            </Realm>
+            <Host name="localhost" appBase="webapps" unpackWARs="true" autoDeploy="true">
+                <Valve 
+                    className="org.apache.catalina.valves.AccessLogValve" directory="logs"
+                    prefix="localhost_access_log" suffix=".txt"
+                    pattern="%h %l %u %t &quot;%r&quot; %s %b" 
+                />
+            </Host>
+        </Engine>
+    </Service>
+</Server>
