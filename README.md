@@ -3,7 +3,7 @@
 This repository exists for an example for a 3-tier architecture training.
 
 ### Concept
-![3-tier-architecture drawio](https://github.com/user-attachments/assets/df312367-05be-4ee7-b657-608e9b63408e)
+![3-tier-architecture drawio|700](https://github.com/user-attachments/assets/df312367-05be-4ee7-b657-608e9b63408e)
 
 
 ### Test Environment
